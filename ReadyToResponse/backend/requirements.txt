@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-vosk
-soundfile
-numpy
-pydantic
-python-multipart
