@@ -1,0 +1,16 @@
+const JWT = require("jsonwebtoken")
+
+const genrateToken = (payload)=>{
+    return JWT.sign(payload, process.env.JWT_SECRET, {
+        expiresIn : "6h"
+    });
+}
+
+const verifyToken = (token) => {
+    return JWT.verify(token, process.env.JWT_SECRET);
+}
+
+module.exports = {
+    genrateToken,
+    verifyToken
+}
