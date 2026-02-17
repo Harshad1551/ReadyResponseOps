@@ -102,26 +102,67 @@ router.post("/signup", async (req, res) => {
 
 /* -------------------- DEBUG DATABASE ROUTE -------------------- */
 
-router.get("/debug-db", async (req, res) => {
+
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const db = await pool.query("SELECT current_database();");
-    const host = await pool.query("SELECT inet_server_addr();");
-    const port = await pool.query("SELECT inet_server_port();");
+    const userResult = await pool.query(
+      `SELECT u.id, u.email, u.password, u.is_verified, r.name AS role
+       FROM users u
+       JOIN role r ON u.role_id = r.id
+       WHERE u.email = $1`,
+      [email]
+    );
 
-    const tables = await pool.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public';
-    `);
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-    res.json({
-      database: db.rows[0].current_database,
-      serverAddress: host.rows[0].inet_server_addr,
-      serverPort: port.rows[0].inet_server_port,
-      tables: tables.rows,
+    const user = userResult.rows[0];
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const publicEmail = isPublicEmail(user.email);
+
+    if (
+      user.role !== "community" &&
+      !user.is_verified &&
+      publicEmail
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Account pending verification" });
+    }
+
+    if (
+      user.role !== "community" &&
+      !user.is_verified &&
+      !publicEmail
+    ) {
+      await pool.query(
+        "UPDATE users SET is_verified = true WHERE id = $1",
+        [user.id]
+      );
+    }
+
+    const token = genrateToken({
+      userId: user.id,
+      role: user.role,
+      is_verified: true,
     });
-
+console.log(token);
+    res.json({
+      message: "Login successful",
+      token,
+      role: user.role,
+      userId: user.id
+    });
   } catch (err) {
+    console.error("LOGIN ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
