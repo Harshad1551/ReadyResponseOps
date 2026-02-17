@@ -35,6 +35,7 @@ app.use(
     origin: [
       "http://localhost:8080",
       "http://localhost:5173",
+      "https://ready-response-frontend.onrender.com"
     ],
     credentials: true,
   })
