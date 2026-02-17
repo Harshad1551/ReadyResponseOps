@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("./DB");
 const { genrateToken } = require("./JWT");
 const bcrypt = require("bcrypt");
+
 const router = express.Router();
 
 /* -------------------- EMAIL DOMAIN LOGIC -------------------- */
@@ -33,6 +34,7 @@ router.post("/signup", async (req, res) => {
   }
 
   try {
+    // 1️⃣ Get role ID
     const roleResult = await pool.query(
       `SELECT id FROM role WHERE name = $1`,
       [role]
@@ -42,14 +44,17 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "Invalid role" });
     }
 
+    // 2️⃣ Validate organization
     if (role !== "community" && !organization_name) {
       return res.status(400).json({
         message: "Organization name required",
       });
     }
 
+    // 3️⃣ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 4️⃣ Verification logic
     let is_verified = false;
 
     if (role === "community") {
@@ -58,6 +63,7 @@ router.post("/signup", async (req, res) => {
       is_verified = !isPublicEmail(email);
     }
 
+    // 5️⃣ Insert user
     const userResult = await pool.query(
       `INSERT INTO users 
        (name, email, password, role_id, organization_name, is_verified)
@@ -75,6 +81,7 @@ router.post("/signup", async (req, res) => {
 
     const userId = userResult.rows[0].id;
 
+    // 6️⃣ Generate token
     const token = genrateToken({
       userId,
       role,
@@ -86,24 +93,33 @@ router.post("/signup", async (req, res) => {
       token,
       role
     });
+
   } catch (err) {
+    console.error("Signup Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-});
-router.get("/debug-db", async (req, res) => {
-const db = await pool.query("SELECT current_database();");
-  const tables = await pool.query(`
-    SELECT table_name 
-    FROM information_schema.tables 
-    WHERE table_schema = 'public';
-  `);
+/* -------------------- DEBUG DATABASE ROUTE -------------------- */
 
-  res.json({
-    currentDatabase: db.rows[0].current_database,
-    tables: tables.rows,
-  });
+router.get("/debug-db", async (req, res) => {
+  try {
+    const db = await pool.query("SELECT current_database();");
+
+    const tables = await pool.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public';
+    `);
+
+    res.json({
+      currentDatabase: db.rows[0].current_database,
+      tables: tables.rows,
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
