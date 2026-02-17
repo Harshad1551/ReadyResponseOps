@@ -105,6 +105,8 @@ router.post("/signup", async (req, res) => {
 router.get("/debug-db", async (req, res) => {
   try {
     const db = await pool.query("SELECT current_database();");
+    const host = await pool.query("SELECT inet_server_addr();");
+    const port = await pool.query("SELECT inet_server_port();");
 
     const tables = await pool.query(`
       SELECT table_name 
@@ -113,7 +115,9 @@ router.get("/debug-db", async (req, res) => {
     `);
 
     res.json({
-      currentDatabase: db.rows[0].current_database,
+      database: db.rows[0].current_database,
+      serverAddress: host.rows[0].inet_server_addr,
+      serverPort: port.rows[0].inet_server_port,
       tables: tables.rows,
     });
 
