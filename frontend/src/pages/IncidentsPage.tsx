@@ -35,7 +35,8 @@ export default function IncidentsPage() {
   const [statusFilter, setStatusFilter] = useState<string | "all">("all");
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState<any | null>(null);
-  const socket = io("http://localhost:5000", {
+  const API_BASE = import.meta.env.VITE_API_URL;
+  const socket = io(API_BASE, {
     transports: ["websocket"],
   });
   /* ===================== FETCH INCIDENTS ===================== */
