@@ -21,7 +21,7 @@ export function VoiceAssistInput({
   const [errorMessage, setErrorMessage] = useState('');
   const [liveTranscript, setLiveTranscript] = useState('');
   const [recordingDuration, setRecordingDuration] = useState(0);
- const API_BASE = process.env.STT_URL;
+const API_BASE = import.meta.env.VITE_STT_URL;
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
