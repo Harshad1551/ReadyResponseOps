@@ -113,3 +113,96 @@ async def speech_to_text(audio: UploadFile = File(...)):
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+class IncidentExtractionRequest(BaseModel):
+    transcription: str
+
+@app.post("/ai/extract-incident")
+def extract_incident(req: IncidentExtractionRequest):
+    prompt = f"""
+You are a STRICT emergency incident classifier.
+
+Your job:
+Classify the transcript into ONE type and ONE severity.
+
+You MUST follow the rules exactly.
+You are NOT allowed to invent new categories.
+
+----------------------------------------------------
+ALLOWED TYPES:
+["Fire", "Flooding", "Medical", "Power Outage",
+ "Gas Leak", "Traffic Accident", "Building Collapse",
+ "Hazardous Material", "Civil Unrest",
+ "Natural Disaster", "Other"]
+
+ALLOWED SEVERITY:
+["High", "Medium", "Low"]
+
+----------------------------------------------------
+CLASSIFICATION LOGIC (MANDATORY):
+
+1) If transcript contains ANY of these words:
+   fire, smoke, burning, explosion, gas leak,
+   collapse, building down
+   → type = "Fire" or appropriate disaster
+   → severity = "High"
+
+2) If transcript contains:
+   accident, injured, crash, collision,
+   blocked road, fallen tree, outage
+   → type = "Traffic Accident" or closest match
+   → severity = "Medium"
+
+3) If transcript contains:
+   pain, unconscious, medical emergency,
+   bleeding, heart problem
+   → type = "Medical"
+   → severity = "High"
+
+4) If none match:
+   → type = "Other"
+   → severity = "Low"
+
+If multiple rules apply, choose the HIGHEST severity.
+
+----------------------------------------------------
+Return ONLY valid JSON in this format:
+
+{{
+  "type": "One from allowed list",
+  "severity": "High | Medium | Low",
+  "description": "Cleaned transcript"
+}}
+
+Transcript:
+\"\"\"{req.transcription}\"\"\"
+"""
+
+    try:
+        response = gemini_model.generate_content(prompt)
+
+        if not response or not response.text:
+            raise RuntimeError("Empty response from Gemini")
+
+        raw_text = response.text.strip()
+        print("🔹 Gemini raw response:", raw_text)
+
+        cleaned = raw_text.replace("```json", "").replace("```", "").strip()
+
+        result = json.loads(cleaned)
+
+        # Normalize
+        result["type"] = result.get("type", "Other").strip().title()
+        result["severity"] = result.get("severity", "Medium").strip().title()
+        result["location"] = result.get("location", "").strip()
+        result["description"] = result.get("description", req.transcription).strip()
+
+        return result
+
+    except Exception as e:
+        print("❌ Gemini extraction failed:", str(e))
+
+        return {
+            "type": "Other",
+            "severity": "Medium",
+            "description": req.transcription
+        }
