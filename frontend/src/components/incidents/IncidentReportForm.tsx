@@ -28,7 +28,7 @@ export function IncidentReportForm({
   onCancel,
   onSuccess,
 }: IncidentReportFormProps) {
-
+const API_BASE = import.meta.env.VITE_STT_URL;
   const [type, setType] = useState<string>("");
   const [severity, setSeverity] = useState<string>("");
   const [location, setLocation] = useState<string>("");
@@ -74,7 +74,7 @@ export function IncidentReportForm({
     setVoicePrefilledFields([]);
 
     try {
-      const res = await fetch("http://localhost:8000/ai/extract-incident", {
+      const res = await fetch(`{API_BASE}/ai/extract-incident`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ transcription }),
