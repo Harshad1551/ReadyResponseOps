@@ -67,11 +67,11 @@ export default function AnalyticsPage() {
   };
 
   // ---------------- FETCH ----------------
-
+const API_BASE = import.meta.env.VITE_API_URL;
   const fetchIncidents = async () => {
     try {
       const res = await fetch(
-        'http://localhost:5000/incidents/incident-detail',
+        `${API_BASE}/incidents/incident-detail`,
         { headers: authHeaders }
       );
 
@@ -86,7 +86,7 @@ export default function AnalyticsPage() {
 
   const fetchResources = async () => {
     try {
-      const res = await fetch('http://localhost:5000/resources', {
+      const res = await fetch(`${API_BASE}/resources`, {
         headers: authHeaders
       });
 
