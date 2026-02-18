@@ -15,7 +15,6 @@ from stt.vosk_engine import transcribe_wav
 # ------------------------------------------------------------------
 # Setup
 # ------------------------------------------------------------------
-API_KEY = AIzaSyA6KBmCbFh7jQSAUFuTTZ-UGZ6GgJIlmU8
 load_dotenv()
 
 genai.configure(api_key=os.getenv("API_KEY"))
