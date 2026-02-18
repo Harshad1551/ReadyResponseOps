@@ -25,7 +25,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8080",  # your frontend
+        "http://localhost:8080",
+        "https://readyresponseops-front.onrender.com",# your frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
