@@ -2,7 +2,11 @@ import json
 import wave
 from vosk import Model, KaldiRecognizer
 
-MODEL_PATH = "models/vosk-model-small-en-in-0.4"
+import os
+
+# Construct absolute path to the model directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATH = os.path.join(BASE_DIR, "models", "vosk-model-small-en-0.4")
 model = Model(MODEL_PATH)
 
 def transcribe_wav(wav_path: str) -> str:
