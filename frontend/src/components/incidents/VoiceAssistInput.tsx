@@ -21,7 +21,7 @@ export function VoiceAssistInput({
   const [errorMessage, setErrorMessage] = useState('');
   const [liveTranscript, setLiveTranscript] = useState('');
   const [recordingDuration, setRecordingDuration] = useState(0);
-
+ const API_BASE = process.env.STT_URL;
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -134,7 +134,7 @@ export function VoiceAssistInput({
       const formData = new FormData();
       formData.append('audio', wavBlob, 'recording.wav');
 
-      const response = await fetch('http://localhost:8000/speech-to-text', {
+      const response = await fetch(`${API_KEY}/speech-to-text`, {
         method: 'POST',
         body: formData,
       });
