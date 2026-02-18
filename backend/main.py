@@ -8,7 +8,7 @@ import json
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
-
+import wave
 from db import get_connection
 from stt.vosk_engine import transcribe_wav
 
@@ -41,7 +41,10 @@ app.add_middleware(
 
 async def speech_to_text(audio: UploadFile = File(...)):
     audio_bytes = await audio.read()
-
+    with wave.open(temp_path, "rb") as wf:
+    print("Channels:", wf.getnchannels())
+    print("Sample Width:", wf.getsampwidth())
+    print("Frame Rate:", wf.getframerate())
     # Windows-safe temp file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
         temp_path = tmp.name
