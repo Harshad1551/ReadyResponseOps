@@ -20,7 +20,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:8080", // ✅ your current frontend
       "http://localhost:5173",
-      "https://ready-response-frontend.onrender.com"// keep for safety
+      "https://readyresponseops-front.onrender.com"// keep for safety
     ],
     methods: ["GET", "POST"],
     credentials: true,
@@ -35,7 +35,7 @@ app.use(
     origin: [
       "http://localhost:8080",
       "http://localhost:5173",
-      "https://ready-response-frontend.onrender.com"
+      "https://readyresponseops-front.onrender.com"
     ],
     credentials: true,
   })
