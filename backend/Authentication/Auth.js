@@ -103,7 +103,7 @@ router.post("/signup", async (req, res) => {
 /* -------------------- DEBUG DATABASE ROUTE -------------------- */
 
 
-app.get("/test-db", async (req, res) => {
+router.get("/test-db", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
     
