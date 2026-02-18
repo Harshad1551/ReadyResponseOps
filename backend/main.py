@@ -38,6 +38,7 @@ app.add_middleware(
 # ------------------------------------------------------------------
 
 @app.post("/speech-to-text")
+
 async def speech_to_text(audio: UploadFile = File(...)):
     audio_bytes = await audio.read()
 
@@ -48,7 +49,9 @@ async def speech_to_text(audio: UploadFile = File(...)):
 
     try:
         transcript = transcribe_wav(temp_path)
-
+        print("========== RAW TRANSCRIPT ==========")
+        print(transcript)
+        print("=====================================")
         # Store WAV in PostgreSQL (optional but kept as-is)
         conn = get_connection()
         cursor = conn.cursor()
