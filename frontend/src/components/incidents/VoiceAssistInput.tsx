@@ -134,7 +134,7 @@ export function VoiceAssistInput({
       const formData = new FormData();
       formData.append('audio', wavBlob, 'recording.wav');
 
-      const response = await fetch(`${API_KEY}/speech-to-text`, {
+      const response = await fetch(`${API_BASE}/speech-to-text`, {
         method: 'POST',
         body: formData,
       });
