@@ -103,67 +103,24 @@ router.post("/signup", async (req, res) => {
 /* -------------------- DEBUG DATABASE ROUTE -------------------- */
 
 
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
+app.get("/test-db", async (req, res) => {
   try {
-    const userResult = await pool.query(
-      `SELECT u.id, u.email, u.password, u.is_verified, r.name AS role
-       FROM users u
-       JOIN role r ON u.role_id = r.id
-       WHERE u.email = $1`,
-      [email]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const user = userResult.rows[0];
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const publicEmail = isPublicEmail(user.email);
-
-    if (
-      user.role !== "community" &&
-      !user.is_verified &&
-      publicEmail
-    ) {
-      return res
-        .status(403)
-        .json({ message: "Account pending verification" });
-    }
-
-    if (
-      user.role !== "community" &&
-      !user.is_verified &&
-      !publicEmail
-    ) {
-      await pool.query(
-        "UPDATE users SET is_verified = true WHERE id = $1",
-        [user.id]
-      );
-    }
-
-    const token = genrateToken({
-      userId: user.id,
-      role: user.role,
-      is_verified: true,
-    });
-console.log(token);
+    const result = await pool.query("SELECT NOW()");
+    
     res.json({
-      message: "Login successful",
-      token,
-      role: user.role,
-      userId: user.id
+      success: true,
+      message: "Database connected successfully",
+      serverTime: result.rows[0].now,
+      databaseUrlUsed: process.env.DATABASE_URL
+        ? "DATABASE_URL is set"
+        : "DATABASE_URL is NOT set"
     });
-  } catch (err) {
-    console.error("LOGIN ERROR:", err.message);
-    res.status(500).json({ error: err.message });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 });
 
