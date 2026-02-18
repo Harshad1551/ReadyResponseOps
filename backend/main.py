@@ -19,7 +19,7 @@ from stt.vosk_engine import transcribe_wav
 load_dotenv()
 
 genai.configure(api_key=os.getenv("API_KEY"))
-gemini_model = genai.GenerativeModel("gemini-2.5-flash")
+gemini_model = genai.GenerativeModel("gemini-1.5-flash")
 
 app = FastAPI()
 
@@ -82,7 +82,6 @@ async def speech_to_text(audio: UploadFile = File(...)):
 class IncidentExtractionRequest(BaseModel):
     transcription: str
 
-@app.post("/ai/extract-incident")
 @app.post("/ai/extract-incident")
 def extract_incident(req: IncidentExtractionRequest):
     prompt = f"""
