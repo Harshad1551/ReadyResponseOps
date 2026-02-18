@@ -35,7 +35,7 @@ const resourceTypes = [
 
 export default function ResourcesPage() {
   const { user, token } = useAuth();
-
+const API_BASE = import.meta.env.VITE_API_URL;
   const [resources, setResources] = useState<any[]>([]);
     const [statusFilter, setStatusFilter] = useState<ResourceStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<string | 'all'>('all');
@@ -49,7 +49,7 @@ export default function ResourcesPage() {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-const socket = io("http://localhost:5000");
+const socket = io(API_BASE);
   const canAddResources = user?.role === "agency";
 const canEditStatus = user?.role === 'agency';
   /* ===================== FETCH RESOURCES ===================== */
@@ -153,7 +153,7 @@ useEffect(() => {
     try {
       setIsSubmitting(true);
 
-      const res = await fetch("http://localhost:5000/resources/create-resource", {
+      const res = await fetch(`${API_BASE}/resources/create-resource`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
